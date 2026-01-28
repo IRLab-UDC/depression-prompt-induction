@@ -1,4 +1,4 @@
-# Depression Symptom Classification with LLMs
+# Learning Evidence of Depression Symptoms via Induced Prompts
 
 Automated classification of BDI-II (Beck Depression Inventory) symptoms from text using Large Language Models. Compares multiple prompting strategies including zero-shot, in-context learning, supervised fine-tuning, symptom induction, and optimized instruction prompting.
 

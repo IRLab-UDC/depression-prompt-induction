@@ -1,0 +1,86 @@
+{
+    "Sadness": {
+        "pretty_name": "Sadness",
+        "definition": "Feeling sad, down, or unhappy."
+    },
+    "Pessimism": {
+        "pretty_name": "Pessimism",
+        "definition": "Negative expectations about the future; hopelessness."
+    },
+    "Sense_of_failure": {
+        "pretty_name": "Past Failure",
+        "definition": "Feelings of having failed or being disappointed in oneself."
+    },
+    "Loss_of_Pleasure": {
+        "pretty_name": "Loss of Pleasure (Anhedonia)",
+        "definition": "Reduced enjoyment or interest in activities."
+    },
+    "Guilty_feelings": {
+        "pretty_name": "Guilty Feelings",
+        "definition": "Excessive or inappropriate guilt or self-blame."
+    },
+    "Sense_of_punishment": {
+        "pretty_name": "Punishment Feelings",
+        "definition": "Sense of being punished or deserving punishment."
+    },
+    "Self-dislike": {
+        "pretty_name": "Self-Dislike",
+        "definition": "Disappointment in or dislike of oneself."
+    },
+    "Self-incrimination": {
+        "pretty_name": "Self-Criticalness",
+        "definition": "Harsh self-criticism; blaming oneself for problems."
+    },
+    "Suicidal_ideas": {
+        "pretty_name": "Suicidal Thoughts or Wishes",
+        "definition": "Thoughts about death or suicide (ranging from none to active desire)."
+    },
+    "Crying": {
+        "pretty_name": "Crying",
+        "definition": "Increased tendency to cry or inability to cry."
+    },
+    "Agitation": {
+        "pretty_name": "Agitation",
+        "definition": "Restlessness, irritability, or inability to relax."
+    },
+    "Social_withdrawal": {
+        "pretty_name": "Loss of Interest",
+        "definition": "Withdrawal from people or activities; reduced engagement."
+    },
+    "Indecision": {
+        "pretty_name": "Indecisiveness",
+        "definition": "Difficulty making decisions."
+    },
+    "Feelings_of_worthlessness": {
+        "pretty_name": "Worthlessness",
+        "definition": "Feelings of being worthless or having little value."
+    },
+    "Loss_of_energy": {
+        "pretty_name": "Loss of Energy",
+        "definition": "Fatigue; reduced energy to start or sustain tasks."
+    },
+    "Change_of_sleep": {
+        "pretty_name": "Changes in Sleeping Pattern",
+        "definition": "Sleeping more or less than usual."
+    },
+    "Irritability": {
+        "pretty_name": "Irritability",
+        "definition": "Increased annoyance or anger."
+    },
+    "Changes_in_appetite": {
+        "pretty_name": "Changes in Appetite",
+        "definition": "Eating more or less than usual."
+    },
+    "Concentration_difficulty": {
+        "pretty_name": "Concentration Difficulty",
+        "definition": "Trouble focusing, reading, or making decisions."
+    },
+    "Tiredness_or_fatigue": {
+        "pretty_name": "Tiredness or Fatigue",
+        "definition": "Feeling tired easily or all the time."
+    },
+    "Loss_of_interest_in_sex": {
+        "pretty_name": "Loss of Interest in Sex",
+        "definition": "Decreased sexual interest or drive."
+    }
+}

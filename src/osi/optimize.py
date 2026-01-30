@@ -17,7 +17,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--task-model", default="llama3.2:3b", help="Model for task execution")
 parser.add_argument("--prompt-model", default="phi4", help="Model for prompt optimization")
 parser.add_argument("--train-size", type=int, default=100)
-parser.add_argument("--output", default="optimized_classifiers.json", help="Single file containing all optimized classifiers")
+parser.add_argument("--output", default=None, help="Output path (default: osi_optimizations/{prompt_model}_{task_model}/optimized_classifiers.json)")
 parser.add_argument("--ollama-host", default="http://tulkas:11434")
 parser.add_argument("--auto", default="light", choices=["light", "medium", "heavy"])
 parser.add_argument("--num-threads", type=int, default=4)
@@ -26,6 +26,15 @@ parser.add_argument("--symptom", type=str, default=None, help="Single symptom to
 parser.add_argument("--val-size", type=int, default=25, help="Validation examples per class")
 parser.add_argument("--metric", default="weighted", choices=["accuracy", "weighted"], help="Metric to use for optimization")
 args = parser.parse_args()
+
+if args.output is None:
+    task_model_name = args.task_model.replace(':', '_').replace('/', '_')
+    output_dir = Path(f"osi_optimizations/{task_model_name}")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    args.output = str(output_dir / "optimized_classifiers.json")
+else:
+    output_dir = Path(args.output).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
 
 if args.symptom:
     logging.info(f"Running for single symptom: {args.symptom}")
@@ -212,7 +221,7 @@ for symptom, info in symptoms_to_optimize.items():
     print(f"Optimized Score ({args.metric}): {opt_score:.1%}")
 
     # Save individual optimized classifier
-    classifier_path = f"optimized_{symptom}.json"
+    classifier_path = str(output_dir / f"optimized_{symptom}.json")
     logging.info(f"Saving optimized classifier to {classifier_path}")
     optimized_classify.save(classifier_path)
 
@@ -222,7 +231,6 @@ for symptom, info in symptoms_to_optimize.items():
         "baseline_score": float(base_score),
         "optimized_score": float(opt_score),
         "metric": args.metric,
-        "classifier_path": classifier_path,
     }
 
 logging.info(f"Saving summary to {args.output}")

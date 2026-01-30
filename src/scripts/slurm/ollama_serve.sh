@@ -10,7 +10,7 @@
 
 SIF="/mnt/experiments/slurm/singularity-containers/eliseo/ollama_0_15_2.sif"
 
-source "$(dirname "$0")/secrets"
+source src/scripts/slurm/secrets
 
 
 singularity run --disable-cache --nv \

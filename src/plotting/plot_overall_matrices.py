@@ -18,18 +18,17 @@ def plot_single_cm(ax, cm, title, fontsize=24):
     ax.set_yticks([0, 1])
     ax.set_xticklabels(["0", "1"], fontsize=fontsize-6)
     ax.set_yticklabels(["0", "1"], fontsize=fontsize-6)
-    ax.set_title(title, fontsize=fontsize + 2, fontweight='bold', pad=15)
+    ax.set_title(title, fontsize=fontsize, fontweight='bold', pad=15)
     for spine in ax.spines.values():
         spine.set_visible(False)
     return im
 
 
-def plot_method_comparison(zero_shot_path, few_shot_path, ft_path, rcl_path, output_path):
-    paths = [zero_shot_path, few_shot_path, ft_path, rcl_path]
-    titles = ["0-shot", "15-shot", "FT", "RCL"]
+def plot_method_comparison(zs_path, icl_path, sft_path, si_path, sio_path, output_path):
+    paths = [zs_path, icl_path, sft_path, si_path, sio_path]
+    titles = ["ZS", "ICL", "SFT", "SI", "OSI"]
 
-    fig, axes = plt.subplots(2, 2, figsize=(8, 8))
-    axes = axes.flatten()
+    fig, axes = plt.subplots(1, 5, figsize=(20, 4))
 
     for i, (path, title) in enumerate(zip(paths, titles)):
         with open(path) as f:
@@ -39,7 +38,7 @@ def plot_method_comparison(zero_shot_path, few_shot_path, ft_path, rcl_path, out
         im = plot_single_cm(axes[i], cm, title)
 
     fig.supxlabel("Predicted", fontsize=22)
-    fig.supylabel("True", fontsize=22, x=0.05)
+    fig.supylabel("True", fontsize=22, x=0.02)
     plt.tight_layout()
     cbar = fig.colorbar(im, ax=axes, orientation='vertical', fraction=0.046, pad=0.04)
     cbar.set_ticks([0, 20, 40, 60, 80, 100])
@@ -52,10 +51,11 @@ def plot_method_comparison(zero_shot_path, few_shot_path, ft_path, rcl_path, out
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--zero-shot", required=True)
-    parser.add_argument("--few-shot", required=True)
-    parser.add_argument("--ft", required=True)
-    parser.add_argument("--rcl", required=True)
+    parser.add_argument("--zs", required=True)
+    parser.add_argument("--icl", required=True)
+    parser.add_argument("--sft", required=True)
+    parser.add_argument("--si", required=True)
+    parser.add_argument("--sio", required=True)
     parser.add_argument("--output", default="results/plots/overall_matrices_4x4.pdf")
     args = parser.parse_args()
 
@@ -63,10 +63,11 @@ def main():
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     plot_method_comparison(
-        Path(args.zero_shot),
-        Path(args.few_shot),
-        Path(args.ft),
-        Path(args.rcl),
+        Path(args.zs),
+        Path(args.icl),
+        Path(args.sft),
+        Path(args.si),
+        Path(args.sio),
         output_path
     )
 

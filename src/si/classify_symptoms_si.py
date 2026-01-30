@@ -13,11 +13,11 @@ parser.add_argument("--split", default="test")
 args = parser.parse_args()
 
 MODEL = args.model
-RCL_PATH = "data/symptoms_rcl.json"
-OUTPUT_PATH = f"runs/{MODEL.replace('/', '_')}_{args.split}_rcl.json"
+SI_PATH = "data/si.json"
+OUTPUT_PATH = f"runs/{MODEL.replace('/', '_')}_{args.split}_si.json"
 
-with open(RCL_PATH) as f:
-    rcl_data = json.load(f)
+with open(SI_PATH) as f:
+    si_data = json.load(f)
 
 samples = load_dataset(args.split)
 
@@ -35,21 +35,21 @@ Answer NO if: The text is unrelated, describes past events only, or describes a 
 
 Use the following classification guidelines:
 
-{rcl}"""
+{si}"""
 
 def build_prompt(sentence, symptom):
-    rcl = rcl_data[symptom]["rcl"]
+    si = si_data[symptom]["si"]
     return [
-        {"role": "system", "content": SYSTEM.format(rcl=rcl)},
+        {"role": "system", "content": SYSTEM.format(si=si)},
         {"role": "user", "content": f'Text: "{sentence}"'},
     ]
 
 sentences = [s["sentence"] for s in samples]
 
 results = []
-for symptom in rcl_data:
+for symptom in si_data:
     prompts = [build_prompt(s, symptom) for s in sentences]
-    outputs = llm.chat(prompts, sampling_params=sampling_params, chat_template_kwargs={"enable_thinking": True})
+    outputs = llm.chat(prompts, sampling_params=sampling_params, chat_template_kwargs={"enable_thinking": False})
     preds = [1 if o.outputs[0].text.strip() == "YES" else 0 for o in outputs]
     ground_truth = get_symptom_labels(samples, symptom)
 

@@ -8,3 +8,9 @@ data/si.json
 **/__pycache__
 logs
 src/scripts/slurm/secrets
+checkpoints
+torch**
+.claude
+osi_optimizations
+runs
+results

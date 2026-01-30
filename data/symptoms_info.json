@@ -1,86 +1,86 @@
 {
     "Sadness": {
         "pretty_name": "Sadness",
-        "definition": "Feeling sad, down, or unhappy."
+        "definition": "Whether the person is feeling sad, down, or unhappy (or feeling happy/content)."
     },
     "Pessimism": {
         "pretty_name": "Pessimism",
-        "definition": "Negative expectations about the future; hopelessness."
+        "definition": "Whether the person has negative or positive expectations about the future; hopelessness or hopefulness."
     },
     "Sense_of_failure": {
         "pretty_name": "Past Failure",
-        "definition": "Feelings of having failed or being disappointed in oneself."
+        "definition": "Whether the person has feelings of having failed or succeeded; disappointment or pride in oneself."
     },
     "Loss_of_Pleasure": {
         "pretty_name": "Loss of Pleasure (Anhedonia)",
-        "definition": "Reduced enjoyment or interest in activities."
+        "definition": "Whether the person is experiencing pleasure, enjoyment, or interest in activities (or lack thereof)."
     },
     "Guilty_feelings": {
         "pretty_name": "Guilty Feelings",
-        "definition": "Excessive or inappropriate guilt or self-blame."
+        "definition": "Whether the person experiences guilt, self-blame, or feelings of innocence/self-forgiveness."
     },
     "Sense_of_punishment": {
         "pretty_name": "Punishment Feelings",
-        "definition": "Sense of being punished or deserving punishment."
+        "definition": "Whether the person feels punished, deserving of punishment, or feeling safe/undeserving of punishment."
     },
     "Self-dislike": {
         "pretty_name": "Self-Dislike",
-        "definition": "Disappointment in or dislike of oneself."
+        "definition": "Whether the person feels disappointment/dislike or acceptance/appreciation of oneself."
     },
     "Self-incrimination": {
         "pretty_name": "Self-Criticalness",
-        "definition": "Harsh self-criticism; blaming oneself for problems."
+        "definition": "Whether the person engages in harsh self-criticism or self-compassion; blaming oneself or others for problems."
     },
     "Suicidal_ideas": {
         "pretty_name": "Suicidal Thoughts or Wishes",
-        "definition": "Thoughts about death or suicide (ranging from none to active desire)."
+        "definition": "Whether the person has thoughts about death, suicide, or life-affirming thoughts and desires to live."
     },
     "Crying": {
         "pretty_name": "Crying",
-        "definition": "Increased tendency to cry or inability to cry."
+        "definition": "Whether the person experiences crying, increased tendency to cry, or emotional stability."
     },
     "Agitation": {
         "pretty_name": "Agitation",
-        "definition": "Restlessness, irritability, or inability to relax."
+        "definition": "Whether the person feels restlessness, irritability, or calmness and ability to relax."
     },
     "Social_withdrawal": {
         "pretty_name": "Loss of Interest",
-        "definition": "Withdrawal from people or activities; reduced engagement."
+        "definition": "Whether the person is withdrawing from or engaging with people and activities."
     },
     "Indecision": {
         "pretty_name": "Indecisiveness",
-        "definition": "Difficulty making decisions."
+        "definition": "Whether the person experiences difficulty or ease in making decisions."
     },
     "Feelings_of_worthlessness": {
         "pretty_name": "Worthlessness",
-        "definition": "Feelings of being worthless or having little value."
+        "definition": "Whether the person feels worthless or valuable; having little or significant self-worth."
     },
     "Loss_of_energy": {
         "pretty_name": "Loss of Energy",
-        "definition": "Fatigue; reduced energy to start or sustain tasks."
+        "definition": "Whether the person experiences fatigue, reduced energy, or feeling energized and capable."
     },
     "Change_of_sleep": {
         "pretty_name": "Changes in Sleeping Pattern",
-        "definition": "Sleeping more or less than usual."
+        "definition": "Whether the person is sleeping more, less, or normally compared to usual."
     },
     "Irritability": {
         "pretty_name": "Irritability",
-        "definition": "Increased annoyance or anger."
+        "definition": "Whether the person experiences increased annoyance, anger, or patience and calmness."
     },
     "Changes_in_appetite": {
         "pretty_name": "Changes in Appetite",
-        "definition": "Eating more or less than usual."
+        "definition": "Whether the person is eating more, less, or normally compared to usual."
     },
     "Concentration_difficulty": {
         "pretty_name": "Concentration Difficulty",
-        "definition": "Trouble focusing, reading, or making decisions."
+        "definition": "Whether the person has trouble or ease with focusing, reading, or making decisions."
     },
     "Tiredness_or_fatigue": {
         "pretty_name": "Tiredness or Fatigue",
-        "definition": "Feeling tired easily or all the time."
+        "definition": "Whether the person feels tired easily, all the time, or energetic and alert."
     },
     "Loss_of_interest_in_sex": {
         "pretty_name": "Loss of Interest in Sex",
-        "definition": "Decreased sexual interest or drive."
+        "definition": "Whether the person has decreased, normal, or increased sexual interest or drive."
     }
 }

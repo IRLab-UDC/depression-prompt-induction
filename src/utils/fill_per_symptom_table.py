@@ -27,8 +27,8 @@ symptom_labels = {
     "Loss_of_interest_in_sex": "Loss of Interest in Sex",
 }
 
-model_id = "google_gemma-3-4b"
-methods = ["zs", "icl", "sft", "rcl"]
+model_id = "google_gemma-3-4b-it"
+methods = ["zs", "icl", "sft", "si", "osi"]
 
 data = {}
 for method in methods:
@@ -36,10 +36,31 @@ for method in methods:
         pattern = f"checkpoints_{model_id}_sft_test_sft_eval.json"
     elif method == "icl":
         pattern = f"{model_id}_test_*shot_icl_eval.json"
+    elif method == "osi":
+        pattern = f"*_test_*osi*_eval.json"
     else:
         pattern = f"{model_id}_test_{method}_eval.json"
 
     files = list(results_dir.glob(pattern))
+    if method == "osi" and files:
+        if "gemma-3-4b" in model_id.lower():
+            files = [f for f in files if "gemma3_4b" in f.name.lower()]
+        elif "gemma-3-12b" in model_id.lower():
+            files = [f for f in files if "gemma3_12b" in f.name.lower()]
+        elif "llama-3.2-3b" in model_id.lower():
+            files = [f for f in files if "llama32_3b" in f.name.lower()]
+        elif "llama-3.1-8b" in model_id.lower():
+            files = [f for f in files if "llama31_8b" in f.name.lower()]
+        elif "phi-4-mini" in model_id.lower():
+            files = [f for f in files if "phi4_mini" in f.name.lower() or "phi4mini" in f.name.lower()]
+        elif "phi-4" in model_id.lower():
+            files = [f for f in files if "phi4" in f.name.lower() and "mini" not in f.name.lower()]
+        elif "qwen3-4b" in model_id.lower():
+            files = [f for f in files if "qwen3_4b" in f.name.lower()]
+        elif "qwen3-14b" in model_id.lower():
+            files = [f for f in files if "qwen3_14b" in f.name.lower()]
+        else:
+            files = []
     if files:
         with open(files[0]) as f:
             result = json.load(f)
@@ -49,19 +70,19 @@ print("\\begin{table*}")
 print("    \\centering")
 print("    \\caption{Per-symptom classification performance on the BDI-Sen test set across inference strategies for the \\textsc{Gemma 3 4B} model. Best results for each symptom and metric are highlighted in \\textbf{bold}, and second-best results are \\underline{underlined}.}")
 print("    \\label{tab:bdisen_per_symptom}")
-print("    \\begin{tabular}{lcccc:cccc:cccc}")
+print("    \\begin{tabular}{lccccc:ccccc:ccccc}")
 print("        \\toprule")
 print("        \\multirow{2}{*}{\\textbf{Symptom}}")
-print("        & \\multicolumn{4}{c}{\\textbf{Precision (P)}}")
-print("        & \\multicolumn{4}{c}{\\textbf{Recall (R)}}")
-print("        & \\multicolumn{4}{c}{\\textbf{F1-score (F1)}} \\\\")
-print("        \\cmidrule(lr){2-5}")
-print("        \\cmidrule(lr){6-9}")
-print("        \\cmidrule(lr){10-13}")
+print("        & \\multicolumn{5}{c}{\\textbf{Precision (P)}}")
+print("        & \\multicolumn{5}{c}{\\textbf{Recall (R)}}")
+print("        & \\multicolumn{5}{c}{\\textbf{F1-score (F1)}} \\\\")
+print("        \\cmidrule(lr){2-6}")
+print("        \\cmidrule(lr){7-11}")
+print("        \\cmidrule(lr){12-16}")
 print("        ")
-print("        & \\textbf{ZS} & \\textbf{ICL} & \\textbf{FT} & \\textbf{SI}")
-print("        & \\textbf{ZS} & \\textbf{ICL} & \\textbf{FT} & \\textbf{SI}")
-print("        & \\textbf{ZS} & \\textbf{ICL} & \\textbf{FT} & \\textbf{SI} \\\\")
+print("        & \\textbf{ZS} & \\textbf{ICL} & \\textbf{FT} & \\textbf{SI} & \\textbf{OSI}")
+print("        & \\textbf{ZS} & \\textbf{ICL} & \\textbf{FT} & \\textbf{SI} & \\textbf{OSI}")
+print("        & \\textbf{ZS} & \\textbf{ICL} & \\textbf{FT} & \\textbf{SI} & \\textbf{OSI} \\\\")
 print("        \\midrule")
 print("        ")
 

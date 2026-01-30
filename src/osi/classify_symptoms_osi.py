@@ -15,8 +15,8 @@ parser.add_argument("--model", default="llama3.2:3b", help="Model to use")
 parser.add_argument("--ollama-host", default="http://tulkas:11434")
 parser.add_argument("--split", default="test")
 parser.add_argument("--symptom", type=str, default=None, help="Single symptom to classify (e.g., 'sadness')")
-parser.add_argument("--output", default=None, help="Output path (default: runs/{model}_{split}_sio.json)")
-parser.add_argument("--optimized-file", default=None, help="Path to optimized classifiers JSON file")
+parser.add_argument("--output", default=None, help="Output path (default: runs/{model}_{split}_osi.json)")
+parser.add_argument("--optimized-dir", default=None, help="Directory containing optimized classifiers")
 args = parser.parse_args()
 
 SYMPTOMS_INFO_PATH = "data/symptoms_info.json"
@@ -25,8 +25,8 @@ if args.output:
     OUTPUT_PATH = args.output
 else:
     model_name = args.model.replace(':', '_').replace('/', '_')
-    opt_suffix = "optimized" if args.optimized_file else "baseline"
-    OUTPUT_PATH = f"runs/{model_name}_{args.split}_{opt_suffix}_sio.json"
+    opt_suffix = "optimized" if args.optimized_dir else "baseline"
+    OUTPUT_PATH = f"runs/{model_name}_{args.split}_{opt_suffix}_osi.json"
 
 logging.info(f"Loading symptoms info from {SYMPTOMS_INFO_PATH}")
 with open(SYMPTOMS_INFO_PATH) as f:
@@ -40,10 +40,16 @@ lm = dspy.LM(f"ollama_chat/{args.model}", api_base=args.ollama_host, num_ctx=819
 dspy.configure(lm=lm)
 
 summary_data = None
-if args.optimized_file:
-    logging.info(f"Loading optimized classifier summary from {args.optimized_file}")
-    with open(args.optimized_file) as f:
-        summary_data = json.load(f)
+optimized_dir = None
+if args.optimized_dir:
+    optimized_dir = Path(args.optimized_dir)
+    optimized_file_path = optimized_dir / "optimized_classifiers.json"
+    if optimized_file_path.exists():
+        logging.info(f"Loading optimized classifier summary from {optimized_file_path}")
+        with open(optimized_file_path) as f:
+            summary_data = json.load(f)
+    else:
+        logging.warning(f"No optimized classifiers found at {optimized_file_path}")
 
 if args.symptom:
     symptom_key = next((k for k in symptoms_info.keys() if k.lower() == args.symptom.lower()), args.symptom)
@@ -59,17 +65,15 @@ for symptom_idx, (symptom, info) in enumerate(symptoms_to_classify.items(), 1):
 
     classify = dspy.Predict(SymptomClassification)
 
-    if summary_data and symptom in summary_data:
-        classifier_path = summary_data[symptom]["classifier_path"]
-        import os
-        if os.path.exists(classifier_path):
+    if optimized_dir:
+        classifier_path = optimized_dir / f"optimized_{symptom}.json"
+        if classifier_path.exists():
             logging.info(f"Loading optimized classifier from {classifier_path}")
-            classify.load(path=classifier_path)
+            classify.load(path=str(classifier_path))
         else:
             logging.warning(f"Optimized classifier not found at {classifier_path}, using baseline")
+            logging.info(f"Using baseline classifier for {symptom}")
     else:
-        if args.optimized_file:
-            logging.warning(f"No optimized classifier found for {symptom}, using baseline")
         logging.info(f"Using baseline classifier for {symptom}")
 
     preds = []

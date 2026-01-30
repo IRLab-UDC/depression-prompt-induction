@@ -1,8 +1,12 @@
 import argparse
 import json
 from pathlib import Path
-import pandas as pd
+import sys
 import matplotlib.pyplot as plt
+from collections import Counter
+
+sys.path.append(str(Path(__file__).parent.parent))
+from utils.dataset_loader import load_dataset
 
 SYMPTOM_COLS = [
     "Sadness", "Pessimism", "Sense_of_failure", "Loss_of_Pleasure", "Guilty_feelings",
@@ -14,28 +18,34 @@ SYMPTOM_COLS = [
 
 
 def plot_symptom_distribution(data_dir, output_path):
-    with open(data_dir / "symptoms_info.json") as f:
+    with open("data/symptoms_info.json") as f:
         symptoms_info = json.load(f)
 
     splits = {
-        "train": pd.read_csv(data_dir / "train-with-severities-and-multilabels.csv"),
-        "val": pd.read_csv(data_dir / "val-with-severities-and-multilabels.csv"),
-        "test": pd.read_csv(data_dir / "test-with-severities-and-multilabels.csv"),
+        "train": load_dataset("train", data_dir=data_dir),
+        "val": load_dataset("val", data_dir=data_dir),
+        "test": load_dataset("test", data_dir=data_dir),
     }
 
     split_counts = {}
-    for name, df in splits.items():
-        pos_df = df[df["Label"] == 1]
-        split_counts[name] = pos_df[SYMPTOM_COLS].sum()
+    for name, samples in splits.items():
+        counts = Counter()
+        for sample in samples:
+            if not sample["is_control"]:
+                for symptom, label in sample["labels"].items():
+                    if label == 1:
+                        counts[symptom] += 1
+        split_counts[name] = counts
 
-    all_df = pd.concat(splits.values())
-    pos_df = all_df[all_df["Label"] == 1]
-    total_counts = pos_df[SYMPTOM_COLS].sum().sort_values(ascending=False)
-    sorted_symptoms = total_counts.index
+    total_counts = Counter()
+    for counts in split_counts.values():
+        total_counts.update(counts)
 
-    train_sorted = [split_counts["train"][s] for s in sorted_symptoms]
-    val_sorted = [split_counts["val"][s] for s in sorted_symptoms]
-    test_sorted = [split_counts["test"][s] for s in sorted_symptoms]
+    sorted_symptoms = [s for s, _ in total_counts.most_common()]
+
+    train_sorted = [split_counts["train"].get(s, 0) for s in sorted_symptoms]
+    val_sorted = [split_counts["val"].get(s, 0) for s in sorted_symptoms]
+    test_sorted = [split_counts["test"].get(s, 0) for s in sorted_symptoms]
 
     fig, ax = plt.subplots(figsize=(12, 6))
     x = range(len(sorted_symptoms))
@@ -52,10 +62,11 @@ def plot_symptom_distribution(data_dir, output_path):
         if test >= 15:
             ax.text(i, train + val + test/2, str(int(test)), ha="center", va="center", fontsize=10, color="#1e3a8a", fontweight="bold")
 
+    max_count = max(total_counts.values())
     for i, symptom in enumerate(sorted_symptoms):
         total = train_sorted[i] + val_sorted[i] + test_sorted[i]
         pretty_name = symptoms_info[symptom]["pretty_name"]
-        ax.text(i, total + max(total_counts) * 0.02, pretty_name,
+        ax.text(i, total + max_count * 0.02, pretty_name,
                 ha="left", va="bottom", fontsize=10, rotation=45)
 
     ax.set_xticks([])
@@ -73,7 +84,7 @@ def plot_symptom_distribution(data_dir, output_path):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data-dir", default="data/BDI-Sen-full-dataset")
+    parser.add_argument("--data-dir", default="data/bdi_sen_v2")
     parser.add_argument("--output", default="results/plots/bdisen_symptom_distribution.pdf")
     args = parser.parse_args()
 

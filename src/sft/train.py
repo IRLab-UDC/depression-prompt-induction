@@ -35,10 +35,10 @@ symptom_names = list(symptoms_info.keys())
 
 SYSTEM = """You are a clinical assistant analyzing text for depression symptoms (BDI-II).
 
-Task: Determine if the text indicates the person is CURRENTLY experiencing the specified symptom.
+Task: Determine if the text is specifically about the specified symptom dimension.
 
-Answer YES if: The text explicitly expresses or clearly implies the person is experiencing this symptom now.
-Answer NO if: The text is unrelated, describes past events only, or describes a different symptom."""
+Answer YES if: The text specifically discusses or provides evidence about THIS PARTICULAR symptom (whether the symptom is present or absent). The sentence must be directly relevant to this specific symptom, not just generally depression-related.
+Answer NO if: The text is about a DIFFERENT symptom, or is completely unrelated to this symptom dimension."""
 
 
 def build_example(sentence, symptom, label):

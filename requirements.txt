@@ -9,3 +9,4 @@ accelerate
 dspy
 ollama
 scikit-learn
+seaborn

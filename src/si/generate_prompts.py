@@ -24,33 +24,33 @@ for symptom in symptoms_info:
     negatives = hard_neg + soft_neg_samples
     random.shuffle(negatives)
 
-    user_prompt = f"""Analyze these examples to create classification guidelines for determining if a sentence indicates the person is EXPERIENCING "{info['pretty_name']}".
+    user_prompt = f"""Analyze these examples to create classification guidelines for determining if a sentence is SPECIFICALLY ABOUT the "{info['pretty_name']}" symptom dimension.
 
 Definition: {info['definition']}
 
-EXPERIENCING examples:
+SPECIFICALLY ABOUT THIS SYMPTOM examples (whether symptom present or absent):
 {chr(10).join(f"- {s}" for s in relevants)}
 
-NOT EXPERIENCING examples:
+NOT ABOUT THIS SYMPTOM examples (about different symptoms or unrelated):
 {chr(10).join(f"- {s}" for s in negatives)}
 
 Generate guidelines in this exact format:
 
-CORE QUESTION: [One yes/no question about whether the person is experiencing this symptom]
+CORE QUESTION: [One yes/no question about whether the sentence is specifically about THIS PARTICULAR symptom, not just generally depression-related]
 
-EXPERIENCING IF the sentence:
+SPECIFICALLY ABOUT THIS SYMPTOM IF the sentence:
 - [criterion 1]
 - [criterion 2]
 - [up to 5 criteria]
 
-NOT EXPERIENCING IF the sentence:
+NOT ABOUT THIS SYMPTOM IF the sentence:
 - [criterion 1]
 - [criterion 2]
 - [up to 3 criteria]
 
-KEY VOCABULARY: [comma-separated words/phrases indicating this symptom]
+KEY VOCABULARY: [comma-separated words/phrases specifically indicating this symptom]
 
-TRICKY CASES: [1-2 sentences about edge cases or common mistakes]"""
+TRICKY CASES: [1-2 sentences about edge cases, especially how to distinguish from similar symptoms]"""
 
     system_prompt = "You are an expert at extracting classification rules from examples. Follow the output format exactly. Be concise - each criterion should be one line."
 

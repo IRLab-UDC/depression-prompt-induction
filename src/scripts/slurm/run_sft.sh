@@ -10,7 +10,7 @@
 
 SIF="/mnt/experiments/slurm/singularity-containers/eliseo/cuda-eliseo.sif"
 
-source "$(dirname "$0")/secrets"
+source src/scripts/slurm/secrets
 
 MODELS=(
     "google/gemma-3-4b-it"
@@ -19,6 +19,8 @@ MODELS=(
     "meta-llama/Llama-3.1-8B-Instruct"
     "Qwen/Qwen3-4B-Instruct-2507"
     "Qwen/Qwen3-14B"
+    "microsoft/phi-4"
+    "microsoft/Phi-4-mini-instruct"
 )
 
 for MODEL in "${MODELS[@]}"; do
@@ -38,6 +40,8 @@ CHECKPOINTS=(
     "checkpoints/meta-llama_Llama-3.1-8B-Instruct_sft"
     "checkpoints/Qwen_Qwen3-4B-Instruct-2507_sft"
     "checkpoints/Qwen_Qwen3-14B_sft"
+    "checkpoints/microsoft_phi-4_sft"
+    "checkpoints/microsoft_Phi-4-mini-instruct_sft"
 )
 
 for CHECKPOINT in "${CHECKPOINTS[@]}"; do

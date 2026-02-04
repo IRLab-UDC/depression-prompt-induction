@@ -1,16 +1,24 @@
 # Learning Evidence of Depression Symptoms via Induced Prompts
 
-Automated classification of BDI-II (Beck Depression Inventory) symptoms from text using Large Language Models. Compares multiple prompting strategies including zero-shot, in-context learning, supervised fine-tuning, symptom induction, and optimized instruction prompting.
+Automated sentence-level classification of BDI-II (Beck Depression Inventory) symptoms from text using Large Language Models. This project introduces **Symptom Induction (SI)**, a novel approach that compresses labeled examples into concise natural-language classification guidelines, offering an interpretable alternative to few-shot prompting and model fine-tuning.
 
 ## Overview
 
-This project implements and evaluates different LLM-based approaches for detecting 21 depression symptoms from text according to the BDI-II framework. The task is framed as binary classification: determining if a given text indicates the person is currently experiencing each specific symptom.
+This research addresses the challenge of detecting 21 depression symptoms from user-generated text according to the BDI-II framework. The task is framed as binary classification at the sentence level: determining whether a given text indicates the person is currently experiencing each specific symptom.
 
-**Dataset**: BDI-Sen v2 - a labeled dataset of sentences annotated for depression symptoms
-- **Train**: 762 samples (381 positive, 381 negative)
-- **Validation**: 130 samples (65 positive, 65 negative)
-- **Test**: 624 samples (104 positive, 520 negative)
-- **21 BDI-II symptoms**: Sadness, Pessimism, Past Failure, Loss of Pleasure, Guilty Feelings, Punishment Feelings, Self-Dislike, Self-Criticalness, Suicidal Thoughts, Crying, Agitation, Loss of Interest, Indecisiveness, Worthlessness, Loss of Energy, Changes in Sleep, Irritability, Changes in Appetite, Concentration Difficulty, Tiredness/Fatigue, Loss of Interest in Sex
+### Dataset: BDI-Sen
+
+A labeled dataset of sentences annotated for depression symptoms with stratified negative sampling:
+
+- **Train**: 762 samples (381 positive, 381 negative) - balanced 1:1
+- **Validation**: 130 samples (65 positive, 65 negative) - balanced 1:1
+- **Test**: 624 samples (104 positive, 520 negative) - imbalanced 5:1
+
+**Negative Sample Types**:
+- **Control sentences** (soft negatives): Unrelated to depression
+- **Symptom-annotated negatives** (hard negatives): About other depression symptoms
+
+**21 BDI-II Symptoms**: Sadness, Pessimism, Past Failure, Loss of Pleasure, Guilty Feelings, Punishment Feelings, Self-Dislike, Self-Criticalness, Suicidal Thoughts, Crying, Agitation, Loss of Interest, Indecisiveness, Worthlessness, Loss of Energy, Changes in Sleep, Irritability, Changes in Appetite, Concentration Difficulty, Tiredness/Fatigue, Loss of Interest in Sex
 
 ## Approaches
 
@@ -37,34 +45,46 @@ python src/sft/classify_symptoms_sft.py --model checkpoints/google_gemma-3-4b-it
 ```
 
 ### 4. Symptom Induction (SI)
-Generate classification guidelines from training examples using an LLM, then use those guidelines for inference.
+**Core Innovation**: Automatically generate concise, interpretable classification guidelines from training examples using an LLM, then inject those guidelines into the system prompt for inference. This approach provides transparency and improved performance on rare symptoms without the cost of few-shot examples or fine-tuning.
 
 ```bash
-# Generate guidelines from training examples
+# Step 1: Generate guidelines from training examples
 python src/si/generate_prompts.py
 
-# Use guidelines for classification (requires manual inference step)
+# Step 2: Use guidelines for classification
 python src/si/infer_si_prompts.py --model google/gemma-3-4b-it
 python src/si/classify_symptoms_si.py --model google/gemma-3-4b-it --split test
 ```
+
+**Generated guidelines include**:
+- CORE QUESTION: What this symptom fundamentally measures
+- SPECIFICALLY ABOUT: Patterns that indicate presence
+- NOT ABOUT: Patterns that don't qualify
+- KEY VOCABULARY: Relevant terminology
+- TRICKY CASES: Edge cases and clarifications
 
 ## Project Structure
 
 ```
 .
 ├── data/
-│   ├── bdi_sen_v2/          # Dataset splits (train/val/test)
-│   ├── symptoms_info.json   # Symptom definitions
-│   └── si_prompts.jsonl     # Generated self-improvement prompts
+│   ├── bdi_sen/                 # Main dataset (train/val/test splits)
+│   ├── psysym/                  # Cross-domain validation dataset
+│   ├── symptoms_info.json       # 21 symptom definitions
+│   └── si_prompts.jsonl         # Generated symptom induction guidelines
 ├── src/
-│   ├── zs/                  # Zero-shot classification
-│   ├── icl/                 # In-context learning
-│   ├── sft/                 # Supervised fine-tuning
-│   ├── si/                  # Symptom induction
-│   ├── utils/               # Dataset loading and evaluation
-│   └── plotting/            # Visualization scripts
-├── results/                 # Evaluation metrics and plots
-└── runs/                    # Model predictions
+│   ├── zs/                      # Zero-shot classification
+│   ├── icl/                     # In-context learning (few-shot)
+│   ├── sft/                     # Supervised fine-tuning (train + inference)
+│   ├── si/                      # Symptom induction (prompt generation + inference)
+│   ├── cross_domain_experiment/ # Generalization tests on PsySym dataset
+│   ├── utils/                   # Dataset loading and evaluation
+│   ├── plotting/                # Visualization (confusion matrices, distributions)
+│   └── scripts/                 # Shell scripts and SLURM configs
+├── checkpoints/                 # Fine-tuned model checkpoints
+├── results/                     # Evaluation metrics (JSON files)
+├── runs/                        # Raw predictions from each approach
+└── paper/                       # LaTeX manuscript
 ```
 
 ## Installation
@@ -78,18 +98,14 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-**Requirements**:
-- transformers
-- datasets
-- vllm
-- bitsandbytes
-- matplotlib
-- peft
-- trl
-- accelerate
-- dspy
-- ollama
-- scikit-learn
+**Key Dependencies**:
+- `transformers`, `datasets`: Model and data handling
+- `vllm`: Efficient batch inference with structured outputs
+- `bitsandbytes`: 4-bit quantization (NF4)
+- `peft`: LoRA parameter-efficient fine-tuning
+- `trl`: Training utilities
+- `scikit-learn`: Evaluation metrics
+- `matplotlib`, `seaborn`: Visualization
 
 ## Evaluation
 
@@ -111,19 +127,58 @@ python src/utils/fill_overall_table.py
 python src/utils/fill_per_symptom_table.py
 ```
 
-## Key Components
+## Models Evaluated
+
+Fine-tuned checkpoints are available for the following models:
+- **Google Gemma**: 3-4B-IT, 3-12B-IT
+- **Meta Llama**: 3.1-8B-Instruct, 3.2-3B-Instruct
+- **Microsoft Phi**: 4, 4-Mini
+- **Qwen**: Qwen3-4B, Qwen3-14B
+
+All models are evaluated across the four approaches (ZS, ICL, SFT, SI).
+
+## Cross-Domain Validation
+
+The project includes generalization tests on the **PsySym dataset** to validate model performance on different data sources. Scripts are located in `src/cross_domain_experiment/`.
+
+## Key Technical Details
 
 ### Dataset Loader (`src/utils/dataset_loader.py`)
-- Loads train/val/test splits with configurable positive/negative ratios
-- Handles control sentences (soft negatives) and symptom-annotated negatives (hard negatives)
-- Balances classes for training
+- Configurable positive/negative sampling ratios
+- Stratified negative sampling (control vs. symptom-annotated)
+- Balanced class sampling with random seed control (seed=42)
+- Local dataset caching
 
-## Notes
+### Evaluation (`src/utils/evaluate.py`)
+- **Per-symptom metrics**: Precision, Recall, F1, Accuracy, Confusion Matrix
+- **Overall binary metrics**: Aggregated across all symptom-sentence pairs
+- **Multilabel metrics**: Micro/Macro/Weighted F1 treating symptoms as separate labels
 
-- Models are run using vLLM for efficient inference with structured outputs
-- Fine-tuning uses 4-bit quantization (NF4) and LoRA for efficiency
-- Test set has a 5:1 negative-to-positive ratio to simulate real-world imbalance
+### Inference Pipeline
+- Uses vLLM for efficient batch inference
+- Structured output constraints (YES/NO responses)
+- System prompts with symptom definitions
+- Conversation history for ICL approaches
+
+### Fine-Tuning Configuration
+- 4-bit NF4 quantization with bitsandbytes
+- LoRA adaptation (target modules: q_proj, v_proj, k_proj, o_proj, gate_proj, up_proj, down_proj)
+- Training on multi-symptom formatted data
+
+## Visualization
+
+Generate plots for analysis:
+
+```bash
+python src/plotting/plot_overall_matrices.py
+python src/plotting/plot_bdisen_symptom_distribution.py
+python src/plotting/plot_radial_log.py
+```
+
+## Research Contribution
+
+**Symptom Induction (SI)** is the core innovation of this work. Rather than relying on manually crafted few-shot examples or resource-intensive fine-tuning, SI automatically extracts and compresses classification knowledge from training data into concise, human-readable guidelines. These guidelines are injected into the system prompt to improve performance on rare symptoms while maintaining interpretability and transparency in classification decisions.
 
 ## Citation
 
-If you use this code or dataset, please cite the BDI-Sen dataset and relevant papers.
+If you use this code or dataset, please cite the BDI-Sen dataset and the related research paper.

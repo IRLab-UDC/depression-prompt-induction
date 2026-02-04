@@ -1,5 +1,5 @@
 #!/bin/bash
 
-for file in runs/*.json; do
-    python src/utils/evaluate.py "$file"
+for file in runs/cross_domain/*.json; do
+    python src/cross_domain_experiment/evaluate.py "$file"
 done

@@ -1,32 +1,19 @@
 def classification_metric(example, prediction, trace=None):
-    """
-    Simple binary accuracy metric.
-    """
     correct = prediction.answer == example.answer
-
-    if trace is None:
-        return float(correct)
-    else:
-        return correct
+    return float(correct) if trace is None else correct
 
 
 def weighted_classification_metric(example, prediction, trace=None):
-    """
-    Weighted metric that penalizes false negatives more than false positives.
-    Useful when missing a symptom (false negative) is worse than over-predicting.
-    """
-    correct = prediction.answer == example.answer
+    pred_yes = prediction.answer == "YES"
+    gold_yes = example.answer == "YES"
 
     if trace is None:
-        if correct:
-            if example.answer == "YES":
-                return 1.0
-            else:
-                return 0.8
+        if pred_yes and gold_yes:
+            return 1.0
+        elif not pred_yes and not gold_yes:
+            return 0.9
+        elif pred_yes and not gold_yes:
+            return 0.3
         else:
-            if example.answer == "YES":
-                return 0.0
-            else:
-                return 0.2
-    else:
-        return correct
+            return 0.0
+    return pred_yes == gold_yes

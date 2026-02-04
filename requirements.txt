@@ -6,7 +6,5 @@ matplotlib
 peft
 trl
 accelerate
-dspy
-ollama
 scikit-learn
 seaborn

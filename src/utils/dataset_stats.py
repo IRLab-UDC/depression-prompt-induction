@@ -46,31 +46,79 @@ def compute_split_stats(samples):
     }
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--data-dir", default="data/bdi_sen_v2")
-    parser.add_argument("--output", default="results/dataset_stats.json")
-    args = parser.parse_args()
+def load_jsonl(path):
+    with open(path) as f:
+        return [json.loads(line) for line in f]
 
+
+def compute_per_disease_stats(data_dir):
     splits = {
-        "train": load_dataset("train", data_dir=args.data_dir),
-        "val": load_dataset("val", data_dir=args.data_dir),
-        "test": load_dataset("test", data_dir=args.data_dir),
+        "train": load_jsonl(Path(data_dir) / "train.jsonl"),
+        "val": load_jsonl(Path(data_dir) / "val.jsonl"),
+        "test": load_jsonl(Path(data_dir) / "test.jsonl"),
     }
+
+    diseases = set()
+    for samples in splits.values():
+        for sample in samples:
+            if "diseases" in sample:
+                diseases.update(sample["diseases"])
+
+    diseases = sorted(diseases - {"control"})
 
     stats = {}
 
-    for name, samples in splits.items():
-        stats[name] = compute_split_stats(samples)
-        stats[name]["pos_neg_ratio"] = RATIOS[name]
+    for disease in diseases:
+        disease_stats = {}
 
-    all_samples = [s for samples in splits.values() for s in samples]
-    stats["overall"] = compute_split_stats(all_samples)
-    stats["overall"]["split_sizes"] = {name: len(samples) for name, samples in splits.items()}
+        for split_name, samples in splits.items():
+            disease_samples = [s for s in samples if "diseases" in s and disease in s["diseases"]]
+            control_samples = [s for s in samples if "diseases" in s and "control" in s["diseases"]]
+
+            combined = disease_samples + control_samples
+            disease_stats[split_name] = compute_split_stats(combined)
+            disease_stats[split_name]["pos_neg_ratio"] = len(control_samples) / len(disease_samples) if disease_samples else 0
+
+        stats[disease] = disease_stats
+
+    return stats
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--data-dirs", nargs="+", default=["data/bdi_sen_v2", "data/psysym"])
+    parser.add_argument("--output", default="results/dataset_stats.json")
+    args = parser.parse_args()
+
+    all_stats = {}
+
+    for data_dir in args.data_dirs:
+        dataset_name = Path(data_dir).name
+
+        if dataset_name == "psysym":
+            all_stats[dataset_name] = compute_per_disease_stats(data_dir)
+        else:
+            splits = {
+                "train": load_dataset("train", data_dir=data_dir),
+                "val": load_dataset("val", data_dir=data_dir),
+                "test": load_dataset("test", data_dir=data_dir),
+            }
+
+            stats = {}
+
+            for name, samples in splits.items():
+                stats[name] = compute_split_stats(samples)
+                stats[name]["pos_neg_ratio"] = RATIOS[name]
+
+            all_samples = [s for samples in splits.values() for s in samples]
+            stats["overall"] = compute_split_stats(all_samples)
+            stats["overall"]["split_sizes"] = {name: len(samples) for name, samples in splits.items()}
+
+            all_stats[dataset_name] = {"overall": stats}
 
     Path(args.output).parent.mkdir(exist_ok=True)
     with open(args.output, "w") as f:
-        json.dump(stats, f, indent=2)
+        json.dump(all_stats, f, indent=2)
 
 
 if __name__ == "__main__":

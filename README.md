@@ -48,26 +48,6 @@ python src/si/infer_si_prompts.py --model google/gemma-3-4b-it
 python src/si/classify_symptoms_si.py --model google/gemma-3-4b-it --split test
 ```
 
-### 5. Optimized Symptom Induction (OSI)
-Use DSPy's MIPROv2 optimizer to automatically optimize prompts and instructions.
-
-```bash
-# Optimize prompts for all symptoms
-python src/osi/optimize.py \
-  --task-model llama3.2:3b \
-  --prompt-model phi4 \
-  --train-size 100 \
-  --val-size 25 \
-  --auto light \
-  --metric weighted
-
-# Classify using optimized prompts
-python src/osi/classify_symptoms_osi.py \
-  --model llama3.2:3b \
-  --split test \
-  --optimized-file optimized_classifiers.json
-```
-
 ## Project Structure
 
 ```
@@ -81,7 +61,6 @@ python src/osi/classify_symptoms_osi.py \
 │   ├── icl/                 # In-context learning
 │   ├── sft/                 # Supervised fine-tuning
 │   ├── si/                  # Symptom induction
-│   ├── osi/                 # Optimized symptom induction (DSPy)
 │   ├── utils/               # Dataset loading and evaluation
 │   └── plotting/            # Visualization scripts
 ├── results/                 # Evaluation metrics and plots
@@ -139,17 +118,9 @@ python src/utils/fill_per_symptom_table.py
 - Handles control sentences (soft negatives) and symptom-annotated negatives (hard negatives)
 - Balances classes for training
 
-### DSPy Classifier (`src/osi/classifier.py`)
-Defines the signature for symptom classification with structured inputs/outputs for optimization.
-
-### Metrics (`src/osi/metrics.py`)
-- `classification_metric`: Binary accuracy
-- `weighted_classification_metric`: Penalizes false negatives more than false positives (useful when missing symptoms is worse than over-predicting)
-
 ## Notes
 
 - Models are run using vLLM for efficient inference with structured outputs
-- OSI optimization uses Ollama-hosted models for flexibility
 - Fine-tuning uses 4-bit quantization (NF4) and LoRA for efficiency
 - Test set has a 5:1 negative-to-positive ratio to simulate real-world imbalance
 

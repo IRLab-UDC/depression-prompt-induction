@@ -3,6 +3,7 @@ venv
 hf_cache
 data/bdi_sen_v1
 data/bdi_sen_v2
+data/psysym
 data/si_prompts.jsonl
 data/si.json
 **/__pycache__
@@ -14,3 +15,4 @@ torch**
 osi_optimizations
 runs
 results
+paper*

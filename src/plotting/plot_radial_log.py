@@ -4,8 +4,8 @@ from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 
-SUBPLOT_WIDTH = 5
-SUBPLOT_HEIGHT = 10
+SUBPLOT_WIDTH = 4.7
+SUBPLOT_HEIGHT = 11.5
 LINE_WIDTH = 2
 MARKER_SIZE = 6
 FILL_ALPHA = 0.25
@@ -56,6 +56,33 @@ def configure_polar_plot(ax, angles, log_values, num_symptoms, max_val, strategy
         spine.set_visible(False)
 
 
+def abbreviate_symptom(symptom):
+    abbreviations = {
+        "Sadness": "Sad.",
+        "Self-dislike": "Self-Dis.",
+        "Loss_of_Pleasure": "Loss Pleas.",
+        "Sense_of_failure": "Past Fail.",
+        "Pessimism": "Pess.",
+        "Irritability": "Irrit.",
+        "Feelings_of_worthlessness": "Worthless.",
+        "Guilty_feelings": "Guilt.",
+        "Tiredness_or_fatigue": "Tired.",
+        "Crying": "Cry.",
+        "Social_withdrawal": "Loss Int.",
+        "Suicidal_ideas": "Suicidal.",
+        "Sense_of_punishment": "Punish.",
+        "Indecision": "Indecis.",
+        "Concentration_difficulty": "Concentr.",
+        "Loss_of_energy": "Loss Energy.",
+        "Agitation": "Agit.",
+        "Changes_in_appetite": "Appetite.",
+        "Change_of_sleep": "Sleep.",
+        "Self-incrimination": "Self-Crit.",
+        "Loss_of_interest_in_sex": "Loss Sex.",
+    }
+    return abbreviations.get(symptom, symptom[:10])
+
+
 def plot_radial_log(data_dict, output_path):
     strategies = list(data_dict.keys())
     symptoms = list(next(iter(data_dict.values())).keys())
@@ -77,13 +104,28 @@ def plot_radial_log(data_dict, output_path):
         configure_polar_plot(axes[0, idx], angles, fp_log, len(symptoms), max_fp, strategy, FP_COLOR, 'o', show_title=True)
         configure_polar_plot(axes[1, idx], angles, fn_log, len(symptoms), max_fn, strategy, FN_COLOR, 'o', show_title=False)
 
-    fig.text(0.0005, 0.75, 'FP', fontsize=SUPTITLE_SIZE, fontweight='bold', va='center', rotation=90)
-    fig.text(0.0005, 0.25, 'FN', fontsize=SUPTITLE_SIZE, fontweight='bold', va='center', rotation=90)
+    fig.text(-0.015, 0.75, 'FP', fontsize=SUPTITLE_SIZE, fontweight='bold', va='center', rotation=90)
+    fig.text(-0.015, 0.34, 'FN', fontsize=SUPTITLE_SIZE, fontweight='bold', va='center', rotation=90)
 
-    legend_text = '\n'.join([f'{TICK_MARKERS[i]}: {s.replace("_", " ").title()}' for i, s in enumerate(symptoms)])
-    fig.text(1.02, 0.5, legend_text, fontsize=14, va='center', ha='left')
+    plt.tight_layout(rect=[0, 0.12, 1, 1])
 
-    plt.tight_layout()
+    legend_items = [f'{TICK_MARKERS[i]}: {abbreviate_symptom(s)}' for i, s in enumerate(symptoms)]
+
+    from matplotlib.font_manager import FontProperties
+    font_prop = FontProperties(family='sans-serif', size=16)
+
+    x_start = 0.07
+    col_width = 0.13
+    y_positions = [0.10, 0.075, 0.05]
+
+    for row_idx in range(3):
+        for col_idx in range(7):
+            idx = row_idx * 7 + col_idx
+            if idx < len(legend_items):
+                x_pos = x_start + col_idx * col_width
+                y_pos = y_positions[row_idx]
+                fig.text(x_pos, y_pos, legend_items[idx], fontproperties=font_prop, va='center', ha='left')
+
     plt.savefig(output_path, bbox_inches='tight', pad_inches=0)
     plt.close()
 
@@ -94,7 +136,6 @@ def main():
     parser.add_argument("--icl", required=True)
     parser.add_argument("--sft", required=True)
     parser.add_argument("--si", required=True)
-    parser.add_argument("--osi", required=True)
     parser.add_argument("--output", default="results/plots/radial_log.pdf")
     args = parser.parse_args()
 
@@ -106,7 +147,6 @@ def main():
         "ICL": load_symptom_data(args.icl),
         "SFT": load_symptom_data(args.sft),
         "SI": load_symptom_data(args.si),
-        "OSI": load_symptom_data(args.osi),
     }
 
     plot_radial_log(data_dict, output_path)

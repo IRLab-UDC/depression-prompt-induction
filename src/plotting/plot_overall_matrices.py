@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot_single_cm(ax, cm, title, fontsize=24):
+def plot_single_cm(ax, cm, title, fontsize=32):
     row_sums = cm.sum(axis=1, keepdims=True)
     cm_norm = np.divide(cm, row_sums, where=row_sums != 0, out=np.zeros_like(cm, dtype=float))
     im = ax.imshow(cm_norm * 100, cmap="Blues", vmin=0, vmax=100)
@@ -13,22 +13,23 @@ def plot_single_cm(ax, cm, title, fontsize=24):
         text_color = "white" if val > 0.5 else "#1e3a8a"
         raw_count = int(cm[r, c])
         ax.text(c, r-0.15, f"{val:.2f}", ha="center", va="center", fontsize=fontsize, color=text_color)
-        ax.text(c, r+0.25, f"({raw_count})", ha="center", va="center", fontsize=fontsize-8, color=text_color)
+        ax.text(c, r+0.25, f"({raw_count})", ha="center", va="center", fontsize=fontsize-6, color=text_color)
     ax.set_xticks([0, 1])
     ax.set_yticks([0, 1])
-    ax.set_xticklabels(["0", "1"], fontsize=fontsize-6)
-    ax.set_yticklabels(["0", "1"], fontsize=fontsize-6)
-    ax.set_title(title, fontsize=fontsize, fontweight='bold', pad=15)
+    ax.set_xticklabels(["0", "1"], fontsize=fontsize-3)
+    ax.set_yticklabels(["0", "1"], fontsize=fontsize-3)
+    ax.set_title(title, fontsize=30, fontweight='bold', pad=15)
     for spine in ax.spines.values():
         spine.set_visible(False)
     return im
 
 
-def plot_method_comparison(zs_path, icl_path, sft_path, si_path, sio_path, output_path):
-    paths = [zs_path, icl_path, sft_path, si_path, sio_path]
-    titles = ["ZS", "ICL", "SFT", "SI", "OSI"]
+def plot_method_comparison(zs_path, icl_path, sft_path, si_path, output_path):
+    paths = [zs_path, icl_path, sft_path, si_path]
+    titles = ["ZS", "ICL", "SFT", "SI"]
 
-    fig, axes = plt.subplots(1, 5, figsize=(20, 4))
+    fig, axes = plt.subplots(2, 2, figsize=(10, 10))
+    axes = axes.flatten()
 
     for i, (path, title) in enumerate(zip(paths, titles)):
         with open(path) as f:
@@ -37,14 +38,9 @@ def plot_method_comparison(zs_path, icl_path, sft_path, si_path, sio_path, outpu
         cm = np.array([[overall["tn"], overall["fp"]], [overall["fn"], overall["tp"]]])
         im = plot_single_cm(axes[i], cm, title)
 
-    fig.supxlabel("Predicted", fontsize=22)
-    fig.supylabel("True", fontsize=22, x=0.02)
+    fig.supxlabel("Predicted", fontsize=30)
+    fig.supylabel("True", fontsize=30, x=0.02)
     plt.tight_layout()
-    cbar = fig.colorbar(im, ax=axes, orientation='vertical', fraction=0.046, pad=0.04)
-    cbar.set_ticks([0, 20, 40, 60, 80, 100])
-    cbar.set_ticklabels(['0.00', '0.20', '0.40', '0.60', '0.80', '1.00'])
-    cbar.ax.tick_params(labelsize=16)
-    cbar.outline.set_visible(False)
     plt.savefig(output_path, bbox_inches='tight', pad_inches=0)
     plt.close()
 
@@ -55,7 +51,6 @@ def main():
     parser.add_argument("--icl", required=True)
     parser.add_argument("--sft", required=True)
     parser.add_argument("--si", required=True)
-    parser.add_argument("--sio", required=True)
     parser.add_argument("--output", default="results/plots/overall_matrices_4x4.pdf")
     args = parser.parse_args()
 
@@ -67,7 +62,6 @@ def main():
         Path(args.icl),
         Path(args.sft),
         Path(args.si),
-        Path(args.sio),
         output_path
     )
 

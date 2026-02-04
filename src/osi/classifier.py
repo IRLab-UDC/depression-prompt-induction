@@ -1,17 +1,44 @@
 import dspy
-from typing import Literal
+from typing import Literal, Dict
+import json
 
 
 class SymptomClassification(dspy.Signature):
-    """You are a clinical assistant analyzing text for depression symptoms (BDI-II).
+    """Determine if the sentence is SPECIFICALLY ABOUT this particular symptom dimension.
 
-Task: Determine if the text is specifically about the specified symptom dimension.
+SPECIFICALLY ABOUT THIS SYMPTOM IF the sentence:
+- Directly discusses whether this symptom is present or absent
+- Provides evidence relevant to this specific symptom
 
-Answer YES if: The text specifically discusses or provides evidence about THIS PARTICULAR symptom (whether the symptom is present or absent). The sentence must be directly relevant to this specific symptom, not just generally depression-related.
-Answer NO if: The text is about a DIFFERENT symptom, or is completely unrelated to this symptom dimension."""
+NOT ABOUT THIS SYMPTOM IF the sentence:
+- Is about a different symptom
+- Is completely unrelated to this symptom dimension"""
 
-    symptom_name: str = dspy.InputField(desc="The name of the symptom to check for")
-    symptom_definition: str = dspy.InputField(desc="The clinical definition of the symptom")
-    text: str = dspy.InputField(desc="The text to analyze for this specific symptom")
+    symptom_name: str = dspy.InputField(desc="The symptom to check for")
+    symptom_definition: str = dspy.InputField(desc="Clinical definition of the symptom")
+    text: str = dspy.InputField(desc="Sentence to classify")
+    answer: Literal["YES", "NO"] = dspy.OutputField(desc="YES if specifically about this symptom, NO otherwise")
 
-    answer: Literal["YES", "NO"] = dspy.OutputField(desc="YES if the text is specifically about this particular symptom, NO if it's about a different symptom or unrelated")
+
+def create_custom_signature(symptom_key: str, si_instructions: str) -> type:
+    docstring = f"""Classify if the sentence is specifically about this symptom using these guidelines:
+
+{si_instructions}
+
+Based on these guidelines, determine if the sentence is specifically about this symptom."""
+
+    class CustomSymptomClassification(dspy.Signature):
+        __doc__ = docstring
+        symptom_name: str = dspy.InputField(desc="The symptom to check for")
+        symptom_definition: str = dspy.InputField(desc="Clinical definition of the symptom")
+        text: str = dspy.InputField(desc="Sentence to classify")
+        answer: Literal["YES", "NO"] = dspy.OutputField(desc="YES if specifically about this symptom, NO otherwise")
+
+    CustomSymptomClassification.__name__ = f"{symptom_key}Classification"
+    return CustomSymptomClassification
+
+
+def load_custom_signatures(si_json_path: str = "data/si.json") -> Dict[str, type]:
+    with open(si_json_path) as f:
+        si_data = json.load(f)
+    return {k: create_custom_signature(k, v.get("si", "")) for k, v in si_data.items()}

@@ -28,7 +28,7 @@ symptom_labels = {
 }
 
 model_id = "google_gemma-3-4b-it"
-methods = ["zs", "icl", "sft", "si", "osi"]
+methods = ["zs", "icl", "sft", "si"]
 
 data = {}
 for method in methods:
@@ -36,31 +36,10 @@ for method in methods:
         pattern = f"checkpoints_{model_id}_sft_test_sft_eval.json"
     elif method == "icl":
         pattern = f"{model_id}_test_*shot_icl_eval.json"
-    elif method == "osi":
-        pattern = f"*_test_*osi*_eval.json"
     else:
         pattern = f"{model_id}_test_{method}_eval.json"
 
     files = list(results_dir.glob(pattern))
-    if method == "osi" and files:
-        if "gemma-3-4b" in model_id.lower():
-            files = [f for f in files if "gemma3_4b" in f.name.lower()]
-        elif "gemma-3-12b" in model_id.lower():
-            files = [f for f in files if "gemma3_12b" in f.name.lower()]
-        elif "llama-3.2-3b" in model_id.lower():
-            files = [f for f in files if "llama32_3b" in f.name.lower()]
-        elif "llama-3.1-8b" in model_id.lower():
-            files = [f for f in files if "llama31_8b" in f.name.lower()]
-        elif "phi-4-mini" in model_id.lower():
-            files = [f for f in files if "phi4_mini" in f.name.lower() or "phi4mini" in f.name.lower()]
-        elif "phi-4" in model_id.lower():
-            files = [f for f in files if "phi4" in f.name.lower() and "mini" not in f.name.lower()]
-        elif "qwen3-4b" in model_id.lower():
-            files = [f for f in files if "qwen3_4b" in f.name.lower()]
-        elif "qwen3-14b" in model_id.lower():
-            files = [f for f in files if "qwen3_14b" in f.name.lower()]
-        else:
-            files = []
     if files:
         with open(files[0]) as f:
             result = json.load(f)
@@ -70,9 +49,9 @@ print("\\begin{table}")
 print("    \\centering")
 print("    \\caption{Per-symptom F1-score on the BDI-Sen test set across inference strategies for the \\textsc{Gemma 3 4B} model. Best results for each symptom are highlighted in \\textbf{bold}, and second-best results are \\underline{underlined}.}")
 print("    \\label{tab:bdisen_per_symptom_f1}")
-print("    \\begin{tabular}{lccccc}")
+print("    \\begin{tabular}{lcccc}")
 print("        \\toprule")
-print("        \\textbf{Symptom} & \\textbf{ZS} & \\textbf{ICL} & \\textbf{FT} & \\textbf{SI} & \\textbf{OSI} \\\\")
+print("        \\textbf{Symptom} & \\textbf{ZS} & \\textbf{ICL} & \\textbf{FT} & \\textbf{SI} \\\\")
 print("        \\midrule")
 
 for symptom_key, symptom_label in symptom_labels.items():
@@ -110,6 +89,45 @@ for symptom_key, symptom_label in symptom_labels.items():
             row_values.append("")
 
     print(f"        {symptom_label:30s} & {' & '.join(row_values)} \\\\")
+
+print("        \\midrule")
+
+avg_values = []
+for method in methods:
+    if method in data:
+        f1_scores = [data[method][symptom_key]["f1"] for symptom_key in symptom_labels.keys() if symptom_key in data[method]]
+        if f1_scores:
+            avg_f1 = sum(f1_scores) / len(f1_scores)
+            avg_values.append(avg_f1)
+        else:
+            avg_values.append(None)
+    else:
+        avg_values.append(None)
+
+valid_avg_values = [v for v in avg_values if v is not None]
+if len(valid_avg_values) >= 2:
+    sorted_vals = sorted(valid_avg_values, reverse=True)
+    best = sorted_vals[0]
+    second = sorted_vals[1]
+elif len(valid_avg_values) == 1:
+    best = valid_avg_values[0]
+    second = None
+else:
+    best = second = None
+
+formatted_avg_values = []
+for val in avg_values:
+    if val is not None:
+        formatted = f"{val:.3f}"
+        if val == best:
+            formatted = f"\\textbf{{{formatted}}}"
+        elif val == second:
+            formatted = f"\\underline{{{formatted}}}"
+        formatted_avg_values.append(formatted)
+    else:
+        formatted_avg_values.append("--")
+
+print(f"        \\textit{{Raw average}} & {' & '.join(formatted_avg_values)} \\\\")
 
 print("        \\bottomrule")
 print("    \\end{tabular}")

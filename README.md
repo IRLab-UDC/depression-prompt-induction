@@ -1,4 +1,4 @@
-# Learning Evidence of Depression Symptoms via Induced Prompts
+# Learning Evidence of Depression Symptoms via Prompt Induction
 
 Automated sentence-level classification of BDI-II (Beck Depression Inventory) symptoms from text using Large Language Models. This project introduces **Symptom Induction (SI)**, a novel approach that compresses labeled examples into concise natural-language classification guidelines, offering an interpretable alternative to few-shot prompting and model fine-tuning.
 

@@ -1,0 +1,54 @@
+{
+  "Depressed_Mood": [
+    "Sadness",
+    "Crying"
+  ],
+  "pessimism": [
+    "Pessimism"
+  ],
+  "Worthlessness_and_guilty": [
+    "Sense_of_failure",
+    "Guilty_feelings",
+    "Sense_of_punishment",
+    "Self-dislike",
+    "Self-incrimination",
+    "Feelings_of_worthlessness"
+  ],
+  "loss_of_interest_or_motivation": [
+    "Loss_of_Pleasure",
+    "Social_withdrawal"
+  ],
+  "Suicidal_ideas": [
+    "Suicidal_ideas"
+  ],
+  "Indecisiveness": [
+    "Indecision",
+    "Concentration_difficulty"
+  ],
+  "Decreased_energy_tiredness_fatigue": [
+    "Loss_of_energy",
+    "Tiredness_or_fatigue"
+  ],
+  "sleep_disturbance": [
+    "Change_of_sleep"
+  ],
+  "Anger_Irritability": [
+    "Irritability",
+    "Agitation"
+  ],
+  "Hyperactivity_agitation": [
+    "Agitation"
+  ],
+  "weight_and_appetite_change": [
+    "Changes_in_appetite"
+  ],
+  "Genitourinary_symptoms": [
+    "Loss_of_interest_in_sex"
+  ],
+  "Inattention": [
+    "Concentration_difficulty"
+  ],
+  "poor_memory": [
+    "Concentration_difficulty"
+  ]
+}
